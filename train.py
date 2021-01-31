@@ -109,10 +109,12 @@ def train(model, optimizer, loader, loss_fn, device):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
             logits = model(imgs)
 
+            #print(logits.size())
+
             #print(logits.dtype, labels.dtype)
 
             loss = loss_fn(logits, labels)
-
+            
             """"""""""""""""""""""""
 
             #print('labels:', type(labels[0]), labels[0].size())
@@ -124,9 +126,14 @@ def train(model, optimizer, loader, loss_fn, device):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
+
             logits.detach()
-            print("Batch: {}/{} | Loss: {}".format(batch_idx, n_batches, loss))
-            
+
+            #correct += (logits == labels).float().sum()/(logits.shape[0] * logits.shape[1] * logits.shape[2] * logits.shape[3]) * 100
+
+            print("Batch: {}/{} | Loss: {}".format(batch_idx + 1, n_batches, loss))
+            #print("Accuracy:    {} %".format(int(correct)))
+
             '''
             #Detection
             for logit, label in zip(logits, labels):
@@ -136,14 +143,14 @@ def train(model, optimizer, loader, loss_fn, device):
             progress(counter, running_loss, batch_idx, n_batches)
 
             '''
-    return running_loss / (batch_idx + 1)
+    return running_loss / (n_batches)
 
 
 def test(model, loader, loss_fn, device):
     model.eval()
     n_batches = len(loader)
     running_loss = 0.
-    counter = np.zeroes(shape=5, dtype=int)
+    #counter = np.zeroes(shape=5, dtype=int)
     with torch.set_grad_enabled(False):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
@@ -159,7 +166,7 @@ def test(model, loader, loss_fn, device):
                 counter += np.array(performace, dtype=int)
             progress(counter, running_loss, batch_idx, n_batches)
         '''
-        return running_loss / (batch_idx + 1)
+        return running_loss / (n_batches)
 
     
 
