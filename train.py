@@ -10,12 +10,14 @@ import torch
 
 import numpy as np
 
+from glob import glob
+import os
 
 dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
 
-epochs = 5
+epochs = 1
 network_width_param = 64
 test_set_portion = .2
 
@@ -34,9 +36,11 @@ gamma = .1
 
 #DATALOADER
 batch_size = 16
-num_workers = 2
+num_workers = 0
 
 out_channels = 6
+
+save = True
 
 def main():
     model = lambda: UNet(in_channels=3, out_channels=out_channels, features=network_width_param)
@@ -77,7 +81,6 @@ def main():
     
     #TRAIN
     
-
     for epoch in range(epochs):
 
         print('------- EPOCH [{} / {}] -------'.format(epoch + 1, epochs))
@@ -96,6 +99,14 @@ def main():
         # if best metrics improved, or it is the first epoch, save model
 
         # display best metrics
+
+    #Save Model    
+    path = 'saved_models/model-'
+    if(save == True):
+        path += str(len(glob(os.path.join('saved_models/', '*.pth'))))
+        path += '.pth'
+        torch.save(model, path)
+        print("Train Complete: Model Saved as " + path)
 
 
 
@@ -166,8 +177,7 @@ def test(model, loader, loss_fn, device):
                 counter += np.array(performace, dtype=int)
             progress(counter, running_loss, batch_idx, n_batches)
         '''
-        return running_loss / (n_batches)
-
+    return running_loss / (n_batches)
     
 
 if(__name__ == "__main__"):

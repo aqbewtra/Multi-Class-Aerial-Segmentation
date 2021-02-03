@@ -4,6 +4,8 @@ import os
 from PIL import Image
 from torchvision import transforms
 
+import matplotlib.pyplot as plt
+
 def cvt_to_label(y):
     """
     # read in label 
@@ -45,15 +47,47 @@ def find_complete_label_tensor(img1, img2):
     return sample_path, label_categories
 
     '''
+    try:
+        y = Image.open(img1).convert('RGB')
+        z = Image.open(img2).convert('RGB')
 
-    y = Image.open(img1).convert('RGB')
+    except FileNotFoundError:
+        y = Image.open('../'+img1).convert('RGB')
+        z = Image.open('../'+img2).convert('RGB')
+        
+    
     y = transforms.ToTensor()(y)
-    z = Image.open(img2).convert('RGB')
+    
     z = transforms.ToTensor()(z)
     y = torch.stack([y,z], dim=0)
     y = torch.unique(y)
     return y
 
 
+
+def tensor_to_image(tens):
+    rgb_values = find_complete_label_tensor(sample_label_path, sample_label_path_2)
+    interim_tens = torch.zeros([tens.shape[1], tens.shape[2]], dtype=torch.float32)
+    
+    for i, color in enumerate(rgb_values):
+        interim_tens += (tens[i] * color)
+    
+    interim_tens = torch.stack([interim_tens for i in range(3)], dim=0)
+
+    return transforms.ToPILImage()(interim_tens).convert('RGB')
+        
+
+
 if __name__ == "__main__":
     print(find_complete_label_tensor(sample_label_path, sample_label_path_2))
+    y = Image.open(sample_label_path).convert('RGB')
+    y = transforms.ToTensor()(y)
+    y = cvt_to_label(y)
+    
+    y = tensor_to_image(y)
+
+    plt.imshow(y)
+    plt.show()
+
+
+
