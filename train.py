@@ -119,7 +119,7 @@ def train(model, optimizer, loader, loss_fn, device):
     with torch.set_grad_enabled(True):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
-            logits = model(imgs).cuda()
+            logits = model(imgs)
 
             #print(logits.size())
 
@@ -166,7 +166,7 @@ def test(model, loader, loss_fn, device):
     with torch.set_grad_enabled(False):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
-            logits = model(imgs).cuda()
+            logits = model(imgs)
             loss = loss_fn(logits, labels)
             running_loss += loss.item()
 
