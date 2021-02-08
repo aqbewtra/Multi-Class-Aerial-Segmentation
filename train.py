@@ -17,7 +17,7 @@ dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
 
-epochs = 1
+epochs = 10
 network_width_param = 64
 test_set_portion = .2
 
@@ -48,6 +48,7 @@ def main():
     #width = largest width of any given layer in the network
 
     optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
+    #optimizer = lambda m: optim.Adam(m.parameter()
     lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
     loss_fn = torch.nn.BCEWithLogitsLoss()
@@ -118,7 +119,7 @@ def train(model, optimizer, loader, loss_fn, device):
     with torch.set_grad_enabled(True):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
-            logits = model(imgs)
+            logits = model(imgs).cuda()
 
             #print(logits.size())
 
@@ -165,7 +166,7 @@ def test(model, loader, loss_fn, device):
     with torch.set_grad_enabled(False):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
-            logits = model(imgs)
+            logits = model(imgs).cuda()
             loss = loss_fn(logits, labels)
             running_loss += loss.item()
 
