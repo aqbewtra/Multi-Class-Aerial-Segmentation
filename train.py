@@ -45,6 +45,7 @@ out_channels = 6
 save = True
 
 def main():
+    print("Using CUDA:      {}".format(gpu_cuda))
     model = lambda: UNet(in_channels=3, out_channels=out_channels, features=network_width_param)
     #There are six classes, but does that require 5 or 6 channels??
     #width = largest width of any given layer in the network
