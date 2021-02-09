@@ -3,6 +3,3 @@ torchvision
 pillow
 matplotlib
 numpy
-sys
-os
-glob
