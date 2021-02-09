@@ -32,7 +32,7 @@ nesterov = True
 weight_decay = 5e-4
 
 #LR_SCHEDULER - for MultiStepLR Parameters
-milestones = [10,15]
+milestones = [2,4]
     #list of epoch indeces, must be increasing
 gamma = .1
 
