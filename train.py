@@ -26,7 +26,7 @@ device = torch.device('cuda' if gpu_cuda else 'cpu')
 
 
 #OPTIMIZER
-lr = .01
+lr = .003
 momentum = .9
 nesterov = True
 weight_decay = 5e-4
@@ -50,8 +50,8 @@ def main():
     #There are six classes, but does that require 5 or 6 channels??
     #width = largest width of any given layer in the network
 
-    optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
-    #optimizer = lambda m: optim.Adam(m.parameter()
+    #optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
+    optimizer = lambda m: optim.Adam(m.parameters(), lr=lr)
     lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
     loss_fn = torch.nn.BCEWithLogitsLoss()
