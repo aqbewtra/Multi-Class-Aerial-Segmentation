@@ -21,7 +21,9 @@ epochs = 10
 network_width_param = 64
 test_set_portion = .2
 
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+gpu_cuda = torch.cuda.is_available()
+device = torch.device('cuda' if gpu_cuda else 'cpu')
+
 
 #OPTIMIZER
 lr = .01
@@ -54,6 +56,10 @@ def main():
     loss_fn = torch.nn.BCEWithLogitsLoss()
 
     model = model()
+
+    if gpu_cuda:
+        model = model.cuda()
+
     optimizer = optimizer(model)
     lr_scheduler = lr_scheduler(optimizer)
 
@@ -119,7 +125,10 @@ def train(model, optimizer, loader, loss_fn, device):
     with torch.set_grad_enabled(True):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
-            logits = model(imgs)
+            if gpu_cuda:
+                logits = model(imgs).cuda()
+            else:
+                logits = model(imgs)
 
             #print(logits.size())
 
@@ -166,7 +175,10 @@ def test(model, loader, loss_fn, device):
     with torch.set_grad_enabled(False):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
-            logits = model(imgs)
+            if gpu_cuda:
+                logits = model(imgs).cuda()
+            else:
+                logits = model(imgs)
             loss = loss_fn(logits, labels)
             running_loss += loss.item()
 
