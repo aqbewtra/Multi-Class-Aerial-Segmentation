@@ -16,7 +16,7 @@ dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
 
-epochs = 10
+epochs = 8
 network_width_param = 64
 test_set_portion = .2
 
@@ -25,7 +25,7 @@ device = torch.device('cuda' if gpu_cuda else 'cpu')
 
 
 #OPTIMIZER
-lr = .003
+lr = .01
 momentum = .9
 nesterov = True
 weight_decay = 5e-4
