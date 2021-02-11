@@ -7,7 +7,6 @@ import sys
 from torch import manual_seed, cuda
 from torch.utils.data import random_split, DataLoader
 import torch
-
 import numpy as np
 
 from glob import glob
@@ -52,9 +51,13 @@ def main():
 
     #optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
     optimizer = lambda m: optim.Adam(m.parameters(), lr=lr)
-    lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
+    lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingLR(o, 8, eta_min=0, last_epoch=-1, verbose=False)
+    #lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
     loss_fn = torch.nn.BCEWithLogitsLoss()
+    #loss_fn = WeightedFocalLoss()
+
+
 
     model = model()
 
@@ -135,7 +138,8 @@ def train(model, optimizer, loader, loss_fn, device):
 
             #print(logits.dtype, labels.dtype)
 
-            loss = loss_fn(logits, labels)
+            #loss = loss_fn(logits, labels)
+            loss = loss_fn.forward(logits, labels)
             
             """"""""""""""""""""""""
 
@@ -180,7 +184,8 @@ def test(model, loader, loss_fn, device):
                 logits = model(imgs).cuda()
             else:
                 logits = model(imgs)
-            loss = loss_fn(logits, labels)
+            #loss = loss_fn(logits, labels)
+            loss = loss_fn.forward(logits, labels)
             running_loss += loss.item()
 
         '''
@@ -193,6 +198,27 @@ def test(model, loader, loss_fn, device):
         '''
     return running_loss / (n_batches)
     
+'''
+#https://amaarora.github.io/2020/06/29/FocalLoss.html
+
+class WeightedFocalLoss(torch.nn.Module):
+    "Non weighted version of Focal Loss"
+    def __init__(self, alpha=.25, gamma=2):
+        super(WeightedFocalLoss, self).__init__()
+        if gpu_cuda:
+            self.alpha = torch.tensor([alpha, 1-alpha]).cuda()
+        else:
+            self.alpha = torch.tensor([alpha, 1-alpha])
+        self.gamma = gamma
+
+    def forward(self, inputs, targets):
+        BCE_loss = torch.nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
+        targets = targets.type(torch.long)
+        at = self.alpha.gather(0, targets.data.view(-1))
+        pt = torch.exp(-BCE_loss)
+        F_loss = at*(1-pt)**self.gamma * BCE_loss
+        return F_loss.mean()
+'''
 
 if(__name__ == "__main__"):
     main()
