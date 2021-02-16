@@ -215,8 +215,11 @@ class UNet(nn.Module):
         decode = pad_to_match(decode, encode1)
         decode = torch.cat((decode, encode1), dim=1)
         decode = self.up1(decode)
+        seg_map = torch.sigmoid(self.outMap(decode))
         
-        return F.pad(self.outMap(decode), [5,5,5,5])
+        return F.pad(seg_map, [5,5,5,5])
+
+        #return torch.sigmoid()
 
 def pad_to_match(small, big):
     diffX = big.size()[2] - small.size()[2]

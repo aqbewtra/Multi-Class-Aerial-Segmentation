@@ -50,9 +50,9 @@ def main():
     #width = largest width of any given layer in the network
 
     #optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
-    optimizer = lambda m: optim.Adam(m.parameters(), lr=lr)
-    lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingLR(o, 8, eta_min=0, last_epoch=-1)
-    #lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
+    optimizer = lambda m: optim.Adam(m.parameters(), lr=lr, weight_decay=weight_decay)
+    #lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingLR(o, 8, eta_min=0, last_epoch=-1)
+    lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
     loss_fn = torch.nn.BCEWithLogitsLoss()
     #loss_fn = WeightedFocalLoss()
@@ -157,7 +157,7 @@ def train(model, optimizer, loader, loss_fn, device):
 
             #correct += (logits == labels).float().sum()/(logits.shape[0] * logits.shape[1] * logits.shape[2] * logits.shape[3]) * 100
 
-            print("Batch: {}/{} | Loss: {}".format(batch_idx + 1, n_batches, loss))
+            print("Batch: {}/{} | Loss: {} | LR: {}".format(batch_idx + 1, n_batches, loss, get_lr(optimizer)))
             #print("Accuracy:    {} %".format(int(correct)))
 
             '''
@@ -219,6 +219,10 @@ class WeightedFocalLoss(torch.nn.Module):
         F_loss = at*(1-pt)**self.gamma * BCE_loss
         return F_loss.mean()
 '''
+
+def get_lr(optimizer):
+    for param_group in optimizer.param_groups:
+        return param_group['lr']
 
 if(__name__ == "__main__"):
     main()
