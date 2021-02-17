@@ -10,7 +10,7 @@ class UNetBlock(nn.Module):
         self.conv1 = nn.Conv2d(
             in_channels=in_channels,
             out_channels=out_channels,
-            kernel_size=3
+            kernel_size=5
         )
 
         self.bn1 = nn.BatchNorm2d(num_features=out_channels)
@@ -21,7 +21,7 @@ class UNetBlock(nn.Module):
         self.conv2 = nn.Conv2d(
             in_channels=out_channels,
             out_channels=out_channels,
-            kernel_size=3
+            kernel_size=5
         )
 
         self.bn2 = nn.BatchNorm2d(num_features=out_channels)
