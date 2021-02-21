@@ -52,7 +52,7 @@ def main():
     #optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
     optimizer = lambda m: optim.Adam(m.parameters(), lr=lr, weight_decay=weight_decay)
     #lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingLR(o, 8, eta_min=0, last_epoch=-1)
-    lr_scheduler = lambda o: optim.lr_scheduler.CyclicLR(o, base_lr=0.001, max_lr=0.1,step_size_up=5,mode="exp_range",gamma=0.85)
+    lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=10, T_mult=2, eta_min=0.01, last_epoch=-1)
     #lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
     loss_fn = torch.nn.BCEWithLogitsLoss()
