@@ -18,7 +18,6 @@ def cvt_to_label(y):
     labels = torch.unique(find_complete_label_tensor(sample_label_path, sample_label_path_2))
 
     
-    
     return torch.stack([((y == labels[i]).sum(dim=0) > 0) for i in range(labels.size(0))], dim=0)
 
 label_dir = 'data/dataset-sample/label-chips/'
@@ -79,7 +78,7 @@ def tensor_to_image(tens):
 
 
 if __name__ == "__main__":
-    print(find_complete_label_tensor(sample_label_path, sample_label_path_2))
+    print('HERE', find_complete_label_tensor(sample_label_path, sample_label_path_2))
     y = Image.open(sample_label_path).convert('RGB')
     y = transforms.ToTensor()(y)
     y = cvt_to_label(y)

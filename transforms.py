@@ -8,6 +8,7 @@ import torchvision.transforms.functional as TF
 import torch.nn.functional as F
 import segm
 import random
+from single_channel_util import formatting
 
 # format image to tensor
 def spatial_sampling(img_tensor, mode, **kwargs):
@@ -79,7 +80,12 @@ class RandomAffine:
 def label_sampling(img_tensor, mode, **kwargs):
     if isinstance(img_tensor, (np.ndarray, pil.JpegImagePlugin.JpegImageFile, pil.Image.Image)):
         img_tensor = transforms.ToTensor()(img_tensor)
+
+    ######CHANGE #######
     img_tensor = segm.cvt_to_label(img_tensor)
+
+    #img_tensor = formatting.to_single_channel(img_tensor)
+    
     img_tensor.unsqueeze_(0)
     #img_tensor = F.interpolate(img_tensor, mode=mode, **kwargs)
     return img_tensor.squeeze(0)
@@ -100,7 +106,7 @@ class SegmentationTransform:
         img = TF.adjust_brightness(img, brightness_factor=self.brightness())
         if np.random.uniform() < 0.1:
             img = img.filter(ImageFilter.UnsharpMask(radius=self.sharpness()))
-        img, label = RandomAffine()(img, label)
+        #img, label = RandomAffine()(img, label)
         img = pool(img, mode='adaptive_avg', output_size=(int(self.scale * w), int(self.scale * h)))
         label = label_sampling(label, mode=self.mode, size=(int(self.scale * w), int(self.scale * h)))
         label = (label > 0.8).float()

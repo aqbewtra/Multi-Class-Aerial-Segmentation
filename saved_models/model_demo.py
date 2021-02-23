@@ -9,6 +9,7 @@ parentdir = os.path.dirname(currentdir)
 sys.path.append(parentdir)
 
 import segm
+from single_channel_util import formatting
 from train import batch_size, num_workers
 from dataset import SegmentationDataset
 
@@ -32,10 +33,10 @@ def demo():
 
     #dataset
     dataset = SegmentationDataset(img_dir, label_dir, scale=1, mode='nearest')
-    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=True, \
+    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, \
         num_workers=num_workers, pin_memory=torch.cuda.is_available())
 
-    fig = plt.figure()
+    fig, axarr = plt.subplots(3,1)
     #run an image(s) through
     with torch.set_grad_enabled(False):
         for batch_idx, (imgs, labels) in enumerate(loader):
@@ -46,13 +47,19 @@ def demo():
             prediction = model(imgs)
             
             #convert out tensor to image
+            ####CHANGE######
             out_imgs = segm.tensor_to_image(prediction[0])
+
+            #out_imgs = formatting.to_three_channel(prediction[0])
+            
             prediction.detach()
             break
     print(prediction[0][1].unique())
     #plt show image
-    fig.add_subplot()
-    plt.imshow(out_imgs)
+    #fig.add_subplot()
+    #axarr[0,0] = plt.imshow(dataset[0][1])
+    axarr[1,0] = plt.imshow(dataset[0][0])
+    axarr[2,0] = plt.imshow(out_imgs)
     plt.show()  
 
 

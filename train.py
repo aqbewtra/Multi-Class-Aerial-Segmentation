@@ -56,6 +56,7 @@ def main():
     #lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
     loss_fn = torch.nn.BCEWithLogitsLoss()
+    #loss_fn = torch.nn.CrossEntropyLoss()
     #loss_fn = WeightedFocalLoss()
 
 
