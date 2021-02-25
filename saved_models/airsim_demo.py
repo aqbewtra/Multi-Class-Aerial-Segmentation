@@ -1,6 +1,6 @@
 import torch
 import PIL.Image as Image
-
+from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
 import os, sys
@@ -12,19 +12,52 @@ import segm
 from single_channel_util import formatting
 from train import batch_size, num_workers
 from dataset import SegmentationDataset
+from transforms import SegmentationTransform
+from glob import glob
 
 import matplotlib.pyplot as plt
 
 model_path = 'model-0(1).pth'
 
-dataset_root = '../data/dataset-sample/'
-img_dir = dataset_root + 'image-chips/'
-label_dir = dataset_root + 'label-chips/'
+img_dir = '../data/airsim-sample/'
+label_dir = '../data/airsim-sample/'
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-batch_size = batch_size
+batch_size = 16
 num_workers = num_workers
+
+class AirSimDataset(Dataset):
+    def __init__(self, img_dir, label_dir, scale, mode):
+        if(not (0 < scale <= 1.0)):
+            raise ValueError('Scale must be in (0, 1]; got {}'.format(scale))
+        # get image and label paths
+        self.image_paths = glob(os.path.join(img_dir, '*.png'))
+        self.label_paths = glob(os.path.join(label_dir, '*.png'))
+
+        # create path dict
+        self.path_dict = dict()
+        self.data_len = len(self.image_paths)
+
+
+        # for look: enumerate the paths list, and use integer keys for tuples (image_path, label path)
+        for i, (i_path, m_path) in enumerate(zip(self.image_paths, self.label_paths)):
+            self.path_dict.update({i: (i_path, m_path)})
+        
+        self.scale  = scale
+        self.transform = SegmentationTransform(scale=scale, mode=mode)
+
+    def __len__(self):
+        return self.data_len
+    
+    def __getitem__(self, index):
+        i_path, m_path = self.path_dict[index]
+        img = Image.open(i_path).convert('RGB')
+        label = Image.open(m_path).convert('RGB')
+        img, label = self.transform(img, label)
+        img = transforms.Compose([transforms.Resize((300,300))])(img)
+
+        return img, label
 
 def demo():
     #load model
@@ -32,7 +65,7 @@ def demo():
     model.eval()
 
     #dataset
-    dataset = SegmentationDataset(img_dir, label_dir, scale=1, mode='nearest')
+    dataset = AirSimDataset(img_dir, label_dir, scale=1, mode='nearest')
     loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, \
         num_workers=num_workers, pin_memory=torch.cuda.is_available())
 
@@ -43,7 +76,7 @@ def demo():
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
             #segm.tensor_to_image(imgs[0])
             #plt.imshow(segm.tensor_to_image(imgs[0]))
-            print(imgs[0].size())
+            
             prediction = model(imgs)
             
             #convert out tensor to image
@@ -55,12 +88,7 @@ def demo():
             prediction.detach()
             break
     print(prediction[0][1].unique())
-    #plt show image
-    #fig.add_subplot()
-    #axarr[0,0] = plt.imshow(dataset[0][1])
-    #axarr[1,0] = 
     plt.imshow(out_imgs)
-    #axarr[2,0] = plt.imshow(out_imgs)
     plt.show()  
 
 
