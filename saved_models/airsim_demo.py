@@ -74,12 +74,11 @@ def demo():
     with torch.set_grad_enabled(False):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
-            #segm.tensor_to_image(imgs[0])
-            #plt.imshow(segm.tensor_to_image(imgs[0]))
+
             
             prediction = model(imgs)
             
-            #convert out tensor to image
+
             ####CHANGE######
             out_imgs = segm.tensor_to_image(prediction[0])
 

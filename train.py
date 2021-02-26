@@ -46,18 +46,17 @@ save = True
 def main():
     print("Using CUDA:      {}".format(gpu_cuda))
     model = lambda: UNet(in_channels=3, out_channels=out_channels, features=network_width_param)
-    #There are six classes, but does that require 5 or 6 channels??
-    #width = largest width of any given layer in the network
 
-    #optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
+
+    # optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
     optimizer = lambda m: optim.Adam(m.parameters(), lr=lr, weight_decay=weight_decay)
-    #lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingLR(o, 8, eta_min=0, last_epoch=-1)
+
     lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=10, T_mult=2, eta_min=0.01, last_epoch=-1)
-    #lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
+    # lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
     loss_fn = torch.nn.BCEWithLogitsLoss()
-    #loss_fn = torch.nn.CrossEntropyLoss()
-    #loss_fn = WeightedFocalLoss()
+    # loss_fn = CrossEntropyLoss2d()
+    # Dice Loss
 
 
 
@@ -86,11 +85,6 @@ def main():
     test_loader = DataLoader(test_set, batch_size=batch_size, shuffle=False, \
         num_workers=num_workers, pin_memory=torch.cuda.is_available())
 
-    # Cross Entropy Loss for Segmentation
-    # Focal Loss
-    # Dice Loss
-    # This is a way to do pixel level classification
-    #Look into nested UNet ----> a
     
     #TRAIN
     
@@ -136,17 +130,7 @@ def train(model, optimizer, loader, loss_fn, device):
             else:
                 logits = model(imgs)
 
-            #print(logits.size())
-
-            #print(logits.dtype, labels.dtype)
-
-            #loss = loss_fn(logits, labels)
             loss = loss_fn.forward(logits, labels)
-            
-            """"""""""""""""""""""""
-
-            #print('labels:', type(labels[0]), labels[0].size())
-            #print('logits', type(logits), logits[0].size())
 
             running_loss += loss.item()
             
@@ -157,20 +141,8 @@ def train(model, optimizer, loader, loss_fn, device):
 
             logits.detach()
 
-            #correct += (logits == labels).float().sum()/(logits.shape[0] * logits.shape[1] * logits.shape[2] * logits.shape[3]) * 100
-
             print("Batch: {}/{} | Loss: {} | LR: {}".format(batch_idx + 1, n_batches, loss, get_lr(optimizer)))
-            #print("Accuracy:    {} %".format(int(correct)))
 
-            '''
-            #Detection
-            for logit, label in zip(logits, labels):
-                performace, _, _ =  score(logits.squeeze(0).numpy(), label=label.squeeze(0).numpy().astype('uint8')), \
-                    confusion=True, return_bboxes=False, nms=True)
-                counter += np.array(performace, dtype=int)
-            progress(counter, running_loss, batch_idx, n_batches)
-
-            '''
     return running_loss / (n_batches)
 
 
@@ -178,26 +150,19 @@ def test(model, loader, loss_fn, device):
     model.eval()
     n_batches = len(loader)
     running_loss = 0.
-    #counter = np.zeroes(shape=5, dtype=int)
+
     with torch.set_grad_enabled(False):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
+            
             if gpu_cuda:
                 logits = model(imgs).cuda()
             else:
                 logits = model(imgs)
-            #loss = loss_fn(logits, labels)
+
             loss = loss_fn.forward(logits, labels)
             running_loss += loss.item()
 
-        '''
-        #Detection
-        for logit, label in zip(logits, labels):
-                performace, _, _ =  score(logits.squeeze(0).numpy(), label=label.squeeze(0).numpy().astype('uint8')), \
-                    confusion=True, return_bboxes=False, nms=True)
-                counter += np.array(performace, dtype=int)
-            progress(counter, running_loss, batch_idx, n_batches)
-        '''
     return running_loss / (n_batches)
     
 '''
@@ -221,6 +186,16 @@ class WeightedFocalLoss(torch.nn.Module):
         F_loss = at*(1-pt)**self.gamma * BCE_loss
         return F_loss.mean()
 '''
+
+#https://github.com/zijundeng/pytorch-semantic-segmentation/
+class CrossEntropyLoss2d(torch.nn.Module):
+    def __init__(self, weight=None, size_average=True, ignore_index=255):
+        super(CrossEntropyLoss2d, self).__init__()
+        self.nll_loss = torch.nn.NLLLoss2d(weight, size_average, ignore_index)
+
+    def forward(self, inputs, targets):
+        return self.nll_loss(torch.nn.functional.log_softmax(inputs), targets)
+
 
 def get_lr(optimizer):
     for param_group in optimizer.param_groups:

@@ -42,7 +42,6 @@ def demo():
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
             #segm.tensor_to_image(imgs[0])
-            #plt.imshow(segm.tensor_to_image(imgs[0]))
             print(imgs[0].size())
             prediction = model(imgs)
             
@@ -55,12 +54,8 @@ def demo():
             prediction.detach()
             break
     print(prediction[0][1].unique())
-    #plt show image
-    #fig.add_subplot()
-    #axarr[0,0] = plt.imshow(dataset[0][1])
-    #axarr[1,0] = 
+
     plt.imshow(out_imgs)
-    #axarr[2,0] = plt.imshow(out_imgs)
     plt.show()  
 
 
