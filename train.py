@@ -57,7 +57,7 @@ def main():
     # lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
     loss_fn = DiceLoss()
-    # loss_fn = CrossEntropyLoss2d()
+    #loss_fn = torch.nn.CrossEntropyLoss()
     # Dice Loss
 
 

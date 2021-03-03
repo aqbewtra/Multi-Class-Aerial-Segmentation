@@ -13,6 +13,9 @@ import torch
 import numpy as np
 from torchvision import transforms
 
+from single_channel_util import formatting
+import segm
+
 #LABELS = ['BUILDING', 'CLUTTER', 'VEGETATION', 'WATER', 'GROUND', 'CAR'] indices * 40 are the label value now
 
 class SegmentationDataset(Dataset):
@@ -59,6 +62,8 @@ if(__name__ == "__main__"):
     label = torch.stack([((label == labels[i]).sum(dim=0) > 0) for i in range(labels.size(0))], dim=0)
     print(label.size())
     '''
-    print(dataset[0][1].size(), dataset[0][1])
-    #plt.imshow(dataset[0][0])
-    #plt.show()
+
+    label = formatting.to_three_channel(dataset[0][1])
+    #print(dataset[0][1].size(), dataset[0][1])
+    plt.imshow(label)
+    plt.show

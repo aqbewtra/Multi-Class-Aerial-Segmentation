@@ -109,5 +109,9 @@ class SegmentationTransform:
         #img, label = RandomAffine()(img, label)
         img = pool(img, mode='adaptive_avg', output_size=(int(self.scale * w), int(self.scale * h)))
         label = label_sampling(label, mode=self.mode, size=(int(self.scale * w), int(self.scale * h)))
-        label = (label > 0.8).float()
+        
+        
+        #label = (label > 0.8).float()
+        
+        
         return img, label
