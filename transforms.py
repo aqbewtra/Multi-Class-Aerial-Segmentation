@@ -82,9 +82,9 @@ def label_sampling(img_tensor, mode, **kwargs):
         img_tensor = transforms.ToTensor()(img_tensor)
 
     ######CHANGE #######
-    img_tensor = segm.cvt_to_label(img_tensor)
+    #img_tensor = segm.cvt_to_label(img_tensor)
 
-    #img_tensor = formatting.to_single_channel(img_tensor)
+    img_tensor = formatting.to_single_channel(img_tensor)
     
     img_tensor.unsqueeze_(0)
     #img_tensor = F.interpolate(img_tensor, mode=mode, **kwargs)

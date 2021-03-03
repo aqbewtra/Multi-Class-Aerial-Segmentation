@@ -1,0 +1,22 @@
+#!/bin/bash
+#PBS -l nodes=1:ppn=1:gpus=1
+#PBS -l walltime=2:00
+#PBS -l pmem=1gb
+#PBS -A dml129_naic_t_k80_default
+
+# Get started
+echo " "
+echo "Job started on `hostname` at `date`"
+echo " "
+
+# Go to the submission directory
+cd $PBS_O_WORKDIR
+
+# Run the job itself
+nvidia-smi
+
+# Finish up
+echo " "
+echo "Job Ended at `date`"
+echo " "
+

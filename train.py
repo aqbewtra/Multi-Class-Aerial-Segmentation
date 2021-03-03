@@ -12,6 +12,8 @@ import numpy as np
 from glob import glob
 import os
 
+from loss_fns import DiceLoss
+
 dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
@@ -39,7 +41,7 @@ gamma = .1
 batch_size = 16
 num_workers = 0
 
-out_channels = 6
+out_channels = 1
 
 save = True
 
@@ -54,7 +56,7 @@ def main():
     lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=10, T_mult=2, eta_min=0.01, last_epoch=-1)
     # lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
-    loss_fn = torch.nn.BCEWithLogitsLoss()
+    loss_fn = DiceLoss()
     # loss_fn = CrossEntropyLoss2d()
     # Dice Loss
 
@@ -165,36 +167,7 @@ def test(model, loader, loss_fn, device):
 
     return running_loss / (n_batches)
     
-'''
-#https://amaarora.github.io/2020/06/29/FocalLoss.html
 
-class WeightedFocalLoss(torch.nn.Module):
-    "Non weighted version of Focal Loss"
-    def __init__(self, alpha=.25, gamma=2):
-        super(WeightedFocalLoss, self).__init__()
-        if gpu_cuda:
-            self.alpha = torch.tensor([alpha, 1-alpha]).cuda()
-        else:
-            self.alpha = torch.tensor([alpha, 1-alpha])
-        self.gamma = gamma
-
-    def forward(self, inputs, targets):
-        BCE_loss = torch.nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction='none')
-        targets = targets.type(torch.long)
-        at = self.alpha.gather(0, targets.data.view(-1))
-        pt = torch.exp(-BCE_loss)
-        F_loss = at*(1-pt)**self.gamma * BCE_loss
-        return F_loss.mean()
-'''
-
-#https://github.com/zijundeng/pytorch-semantic-segmentation/
-class CrossEntropyLoss2d(torch.nn.Module):
-    def __init__(self, weight=None, size_average=True, ignore_index=255):
-        super(CrossEntropyLoss2d, self).__init__()
-        self.nll_loss = torch.nn.NLLLoss2d(weight, size_average, ignore_index)
-
-    def forward(self, inputs, targets):
-        return self.nll_loss(torch.nn.functional.log_softmax(inputs), targets)
 
 
 def get_lr(optimizer):

@@ -15,6 +15,7 @@ def fix_labels(dir_path):
         label = transforms.ToPILImage()((transforms.ToTensor()(label).unsqueeze_(0) * 40).squeeze_(0)).convert("RGB")
         label.save(path, "PNG")
         
-
+'''
 if __name__=="__main__":
-    #fix_labels(labels_path)
+    fix_labels(labels_path)
+'''
