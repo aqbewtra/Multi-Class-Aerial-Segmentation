@@ -14,7 +14,7 @@ class CrossEntropyLoss2d(torch.nn.Module):
     def forward(self, inputs, targets):
         return self.nll_loss(torch.nn.functional.log_softmax(inputs), targets)
 
-
+'''
 #https://amaarora.github.io/2020/06/29/FocalLoss.html
 
 class WeightedFocalLoss(torch.nn.Module):
@@ -34,7 +34,7 @@ class WeightedFocalLoss(torch.nn.Module):
         pt = torch.exp(-BCE_loss)
         F_loss = at*(1-pt)**self.gamma * BCE_loss
         return F_loss.mean()
-
+'''
 class DiceLoss(nn.Module):
     def __init__(self):
         super(DiceLoss, self).__init__()
