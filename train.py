@@ -27,7 +27,7 @@ device = torch.device('cuda' if gpu_cuda else 'cpu')
 
 
 #OPTIMIZER
-lr = .1
+lr = .03
 momentum = .9
 nesterov = True
 weight_decay = 5e-4
