@@ -38,7 +38,7 @@ milestones = [2,4]
 gamma = .1
 
 #DATALOADER
-batch_size = 16
+batch_size = 1
 num_workers = 0
 
 out_channels = 1
@@ -56,8 +56,8 @@ def main():
     lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=10, T_mult=2, eta_min=0.01, last_epoch=-1)
     # lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
 
-    loss_fn = DiceLoss()
-    #loss_fn = torch.nn.CrossEntropyLoss()
+    #loss_fn = DiceLoss()
+    loss_fn = torch.nn.CrossEntropyLoss()
     # Dice Loss
 
 
@@ -131,8 +131,8 @@ def train(model, optimizer, loader, loss_fn, device):
                 logits = model(imgs).cuda()
             else:
                 logits = model(imgs)
-
-            loss = loss_fn.forward(logits, labels)
+            print(labels.size())
+            loss = loss_fn.forward(logits, labels.to(dtype=torch.long))
 
             running_loss += loss.item()
             
