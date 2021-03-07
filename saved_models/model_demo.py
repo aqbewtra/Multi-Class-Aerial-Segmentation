@@ -15,7 +15,7 @@ from dataset import SegmentationDataset
 
 import matplotlib.pyplot as plt
 
-model_path = 'model-0(1).pth'
+model_path = 'model-2(1).pth'
 
 dataset_root = '../data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
@@ -33,7 +33,7 @@ def demo():
 
     #dataset
     dataset = SegmentationDataset(img_dir, label_dir, scale=1, mode='nearest')
-    loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, \
+    loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, \
         num_workers=num_workers, pin_memory=torch.cuda.is_available())
 
     #fig, axarr = plt.subplots(3,1)
@@ -47,13 +47,13 @@ def demo():
             
             #convert out tensor to image
             ####CHANGE######
-            out_imgs = segm.tensor_to_image(prediction[0])
-
-            #out_imgs = formatting.to_three_channel(prediction[0])
+            #out_imgs = segm.tensor_to_image(prediction[0])
+            print(prediction[0].squeeze().size())
+            out_imgs = formatting.to_three_channel(prediction[0].squeeze())
             
             prediction.detach()
             break
-    print(prediction[0][1].unique())
+    print(prediction[0].unique())
 
     plt.imshow(out_imgs)
     plt.show()  

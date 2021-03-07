@@ -24,7 +24,7 @@ label_dir = '../data/airsim-sample/'
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-batch_size = 16
+batch_size = 1
 num_workers = num_workers
 
 class AirSimDataset(Dataset):
