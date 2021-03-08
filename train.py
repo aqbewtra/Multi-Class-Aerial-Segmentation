@@ -38,10 +38,10 @@ milestones = [2,4]
 gamma = .1
 
 #DATALOADER
-batch_size = 1
+batch_size = 2
 num_workers = 0
 
-out_channels = 1
+out_channels = 6
 
 save = True
 
@@ -131,8 +131,7 @@ def train(model, optimizer, loader, loss_fn, device):
                 logits = model(imgs).cuda()
             else:
                 logits = model(imgs)
-            print(labels.size())
-            loss = loss_fn.forward(logits, labels.to(dtype=torch.long))
+            loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long))
 
             running_loss += loss.item()
             
@@ -162,7 +161,7 @@ def test(model, loader, loss_fn, device):
             else:
                 logits = model(imgs)
 
-            loss = loss_fn.forward(logits, labels)
+            loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long))
             running_loss += loss.item()
 
     return running_loss / (n_batches)

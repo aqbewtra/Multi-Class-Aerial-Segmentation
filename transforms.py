@@ -9,6 +9,7 @@ import torch.nn.functional as F
 import segm
 import random
 from single_channel_util import formatting
+from util import fix_labels
 
 # format image to tensor
 def spatial_sampling(img_tensor, mode, **kwargs):
@@ -82,9 +83,11 @@ def label_sampling(img_tensor, mode, **kwargs):
         img_tensor = transforms.ToTensor()(img_tensor)
 
     ######CHANGE #######
-    #img_tensor = segm.cvt_to_label(img_tensor)
+    # img_tensor = segm.cvt_to_label(img_tensor)
 
-    img_tensor = formatting.to_single_channel(img_tensor)
+    img_tensor = fix_labels.fix_labels2(img_tensor)
+
+    #img_tensor = formatting.to_single_channel(img_tensor)
     
     img_tensor.unsqueeze_(0)
     #img_tensor = F.interpolate(img_tensor, mode=mode, **kwargs)
