@@ -38,7 +38,7 @@ milestones = [2,4]
 gamma = .1
 
 #DATALOADER
-batch_size = 2
+batch_size = 16
 num_workers = 0
 
 out_channels = 6
