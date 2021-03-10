@@ -180,7 +180,7 @@ class UNet(nn.Module):
         decode = pad_to_match(decode, encode1)
         decode = torch.cat((decode, encode1), dim=1)
         decode = self.up1(decode)
-        seg_map = torch.sigmoid(self.outMap(decode))
+        seg_map = self.outMap(decode)
         
         return F.pad(seg_map, [5,5,5,5])
 
