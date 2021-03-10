@@ -18,7 +18,7 @@ dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
 
-epochs = 8
+epochs = 1
 network_width_param = 64
 test_set_portion = .2
 
@@ -33,7 +33,7 @@ nesterov = True
 weight_decay = 5e-4
 
 #LR_SCHEDULER - for MultiStepLR Parameters
-milestones = [2,4]
+milestones = [2,4,6]
     #list of epoch indeces, must be increasing
 gamma = .1
 
@@ -53,9 +53,9 @@ def main():
     # optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
     optimizer = lambda m: optim.Adam(m.parameters(), lr=lr, weight_decay=weight_decay)
 
-    lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=10, T_mult=2, eta_min=0.01, last_epoch=-1)
-    # lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
-
+    #lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=10, T_mult=2, eta_min=0.01, last_epoch=-1)
+    lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
+    
     #loss_fn = DiceLoss()
     loss_fn = torch.nn.CrossEntropyLoss()
     # Dice Loss
@@ -161,8 +161,11 @@ def test(model, loader, loss_fn, device):
             else:
                 logits = model(imgs)
 
-            loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long))
-            running_loss += loss.item()
+            try:
+                loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long))
+                running_loss += loss.item()
+            except:
+                print("EXCEPTION CAUGHT: Test Batch Skipped")
 
     return running_loss / (n_batches)
     
