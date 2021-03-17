@@ -14,7 +14,7 @@ import os
 
 from loss_fns import DiceLoss
 
-dataset_root = 'data/dataset-sample/'
+dataset_root = 'data/dataset-medium/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
 
@@ -27,7 +27,7 @@ device = torch.device('cuda' if gpu_cuda else 'cpu')
 
 
 #OPTIMIZER
-lr = .01
+lr = .001
 momentum = .9
 nesterov = True
 weight_decay = 5e-4
