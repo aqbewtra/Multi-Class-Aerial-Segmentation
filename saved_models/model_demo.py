@@ -14,8 +14,9 @@ from train import batch_size, num_workers
 from dataset import SegmentationDataset
 
 import matplotlib.pyplot as plt
+from util import fix_labels
 
-model_path = 'model-2(1).pth'
+model_path = 'model-7.pth'
 
 dataset_root = '../data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
@@ -33,6 +34,7 @@ def demo():
 
     #dataset
     dataset = SegmentationDataset(img_dir, label_dir, scale=1, mode='nearest')
+    print(dataset.path_dict[0])
     loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, \
         num_workers=num_workers, pin_memory=torch.cuda.is_available())
 
@@ -42,15 +44,15 @@ def demo():
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
             #segm.tensor_to_image(imgs[0])
-            print(imgs[0].size())
             prediction = model(imgs)
-            
+            print(prediction[0].size())
+            print(prediction)
             #convert out tensor to image
             ####CHANGE######
-            #out_imgs = segm.tensor_to_image(prediction[0])
-            print(prediction[0].squeeze().size())
-            out_imgs = formatting.to_three_channel(prediction[0].squeeze())
-            
+            out_imgs = segm.tensor_to_image((prediction[0].unsqueeze_(0) * 40).squeeze_(0))
+            #out_imgs = formatting.to_three_channel(prediction[0].squeeze())
+            #out_imgs = fix_labels.
+            out_imgs
             prediction.detach()
             break
     print(prediction[0].unique())
