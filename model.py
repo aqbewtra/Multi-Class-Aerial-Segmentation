@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torchvision.transforms as transforms
 
 class UNetBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -182,9 +183,7 @@ class UNet(nn.Module):
         decode = self.up1(decode)
         seg_map = self.outMap(decode)
         
-        return F.pad(seg_map, [5,5,5,5])
-
-        #return torch.sigmoid()
+        return torch.sigmoid(transforms.Resize((300,300))(seg_map))
 
 def pad_to_match(small, big):
     diffX = big.size()[2] - small.size()[2]
