@@ -14,7 +14,7 @@ import os
 
 from loss_fns import DiceLoss
 
-dataset_root = 'data/dataset-medium/'
+dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
 
@@ -38,7 +38,7 @@ milestones = [2,4,6]
 gamma = .1
 
 #DATALOADER
-batch_size = 16
+batch_size = 2
 num_workers = 0
 
 out_channels = 6
@@ -54,8 +54,6 @@ def main():
     lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
     
     loss_fn = torch.nn.BCEWithLogitsLoss()
-
-
 
     model = model()
 

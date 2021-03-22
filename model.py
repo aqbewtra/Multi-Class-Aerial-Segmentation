@@ -186,7 +186,7 @@ class UNet(nn.Module):
         #return torch.sigmoid(transforms.Resize((300,300))(seg_map))
         
         out = torch.nn.Softmax(dim=1)(transforms.Resize((300,300))(seg_map))   
-        print(out.size())
+        #print(out.size())
         return out
 
 def pad_to_match(small, big):
