@@ -19,7 +19,7 @@ dataset_root = 'data/dataset-medium/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
 
-epochs = 1
+epochs = 2
 network_width_param = 64
 test_set_portion = .2
 
@@ -118,7 +118,7 @@ def train(model, optimizer, loader, loss_fn, device):
                 logits = model(imgs).cuda()
             else:
                 logits = model(imgs)
-            print(logits.shape, labels.shape)
+
             loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long))
 
             running_loss += loss.item()
