@@ -13,7 +13,7 @@ from glob import glob
 import os
 
 from loss_fns import DiceLoss
-from nestedUNet import NestedUNet
+#from nestedUNet import NestedUNet
 
 dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
@@ -48,8 +48,8 @@ save = True
 
 def main():
     print("Using CUDA:      {}".format(gpu_cuda))
-    #model = lambda: UNet(in_channels=3, out_channels=out_channels, features=network_width_param)
-    model = lambda: NestedUNet(in_channels=3, out_channels=out_channels, filters=network_width_param)
+    model = lambda: UNet(in_channels=3, out_channels=out_channels, features=network_width_param)
+    # model = lambda: NestedUNet(in_channels=3, out_channels=out_channels, filters=network_width_param)
 
     # optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
     optimizer = lambda m: optim.Adam(m.parameters(), lr=lr, weight_decay=weight_decay)
@@ -76,7 +76,7 @@ def main():
     for item in ('precision', 'recall', 'f1_score', 'pixel_acc'):
             best_metrics[item] = 0.0
 
-    dataset = SegmentationDataset(img_dir, label_dir, scale=1, mode='nearest')
+    dataset = SegmentationDataset(img_dir, label_dir, scale=1)
 
     n_test = int(len(dataset) * test_set_portion)
     n_train = len(dataset) - n_test
@@ -132,6 +132,7 @@ def train(model, optimizer, loader, loss_fn, device):
                 logits = model(imgs).cuda()
             else:
                 logits = model(imgs)
+            print(logits.shape, labels.shape)
             loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long))
 
             running_loss += loss.item()
