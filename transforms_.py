@@ -69,4 +69,4 @@ def to_tensor(img, label):
     img = transforms.ToTensor()(img)
     label = torch.as_tensor(np.array(label), dtype=torch.int64)
     label = torch.transpose(label, 0,2)
-    return img, label[:][0]//40
+    return img, label[:][0]
