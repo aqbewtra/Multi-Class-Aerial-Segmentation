@@ -22,6 +22,8 @@ class SegmentationTransform:
         if np.random.uniform() < 0.1:
             img = img.filter(ImageFilter.UnsharpMask(radius=self.sharpness()))
         img, label = RandomAffine()(img, label)
+        img = transforms.Resize((256,256))(img)
+        label = transforms.Resize((256, 256))(label)
         img, label = to_tensor(img, label)
         return img, label
 
@@ -69,4 +71,4 @@ def to_tensor(img, label):
     img = transforms.ToTensor()(img)
     label = torch.as_tensor(np.array(label), dtype=torch.int64)
     label = torch.transpose(label, 0,2)
-    return img, label[:][0]
+    return img, label[:][0]//40

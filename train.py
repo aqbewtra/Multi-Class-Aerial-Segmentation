@@ -13,7 +13,7 @@ from glob import glob
 import os
 
 from loss_fns import DiceLoss
-#from nestedUNet import NestedUNet
+from nestedUNet import NestedUNet
 
 dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
@@ -48,8 +48,8 @@ save = True
 
 def main():
     print("Using CUDA:      {}".format(gpu_cuda))
-    model = lambda: UNet(in_channels=3, out_channels=out_channels, features=network_width_param)
-    # model = lambda: NestedUNet(in_channels=3, out_channels=out_channels, filters=network_width_param)
+    #model = lambda: UNet(in_channels=3, out_channels=out_channels, features=network_width_param)
+    model = lambda: NestedUNet(in_channels=3, out_channels=out_channels, filters=network_width_param)
 
     # optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
     optimizer = lambda m: optim.Adam(m.parameters(), lr=lr, weight_decay=weight_decay)
