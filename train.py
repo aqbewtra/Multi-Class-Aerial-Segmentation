@@ -15,7 +15,7 @@ import os
 from loss_fns import DiceLoss
 from nestedUNet import NestedUNet
 
-dataset_root = 'data/dataset-sample/'
+dataset_root = 'data/dataset-medium/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
 
@@ -28,18 +28,17 @@ device = torch.device('cuda' if gpu_cuda else 'cpu')
 
 
 #OPTIMIZER
-lr = .01
+lr = .001
 momentum = .9
 nesterov = True
 weight_decay = 5e-4
 
 #LR_SCHEDULER - for MultiStepLR Parameters
 milestones = [2,4,6]
-    #list of epoch indeces, must be increasing
 gamma = .1
 
 #DATALOADER
-batch_size = 2
+batch_size = 9
 num_workers = 0
 
 out_channels = 6
@@ -48,18 +47,15 @@ save = True
 
 def main():
     print("Using CUDA:      {}".format(gpu_cuda))
-    #model = lambda: UNet(in_channels=3, out_channels=out_channels, features=network_width_param)
     model = lambda: NestedUNet(in_channels=3, out_channels=out_channels, filters=network_width_param)
 
-    # optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
-    optimizer = lambda m: optim.Adam(m.parameters(), lr=lr, weight_decay=weight_decay)
+    optimizer = lambda m: optim.SGD(m.parameters(), lr=lr, momentum=momentum, nesterov=nesterov, weight_decay=weight_decay)
+    # optimizer = lambda m: optim.Adam(m.parameters(), lr=lr, weight_decay=weight_decay)
 
-    #lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=10, T_mult=2, eta_min=0.01, last_epoch=-1)
+    # lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=10, T_mult=2, eta_min=0.01, last_epoch=-1)
     lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
     
-    #loss_fn = DiceLoss()
     loss_fn = torch.nn.CrossEntropyLoss()
-    # Dice Loss
 
 
 
@@ -89,28 +85,18 @@ def main():
         num_workers=num_workers, pin_memory=torch.cuda.is_available())
 
     
-    #TRAIN
-    
     for epoch in range(epochs):
 
         print('------- EPOCH [{} / {}] -------'.format(epoch + 1, epochs))
 
-        #train, store metrics
         train_loss = train(model, optimizer, train_loader, loss_fn, device)
 
         print("Average Loss = {}".format(train_loss))
-        #test, store metrics
+
         test_loss = test(model, test_loader, loss_fn, device)
         print("Test Loss = {}".format(test_loss))
         lr_scheduler.step()
 
-        #update best metrics
-
-        # if best metrics improved, or it is the first epoch, save model
-
-        # display best metrics
-
-    #Save Model    
     path = 'saved_models/model-'
     if(save == True):
         path += str(len(glob(os.path.join('saved_models/', '*.pth'))))
@@ -136,8 +122,7 @@ def train(model, optimizer, loader, loss_fn, device):
             loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long))
 
             running_loss += loss.item()
-            
-            # Backprop
+
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
