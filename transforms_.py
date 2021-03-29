@@ -71,4 +71,6 @@ def to_tensor(img, label):
     img = transforms.ToTensor()(img)
     label = torch.as_tensor(np.array(label), dtype=torch.int64)
     label = torch.transpose(label, 0,2)
+    label = transforms.functional.rotate(label, 270)
+    label = transforms.functional.hflip(label)
     return img, label[:][0]
