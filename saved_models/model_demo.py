@@ -16,7 +16,7 @@ from dataset import SegmentationDataset
 import matplotlib.pyplot as plt
 from util import fix_labels
 
-model_path = 'model-7.pth'
+model_path = 'model-13.pth'
 
 dataset_root = '../data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
@@ -33,8 +33,8 @@ def demo():
     model.eval()
 
     #dataset
-    dataset = SegmentationDataset(img_dir, label_dir, scale=1, mode='nearest')
-    print(dataset.path_dict[0])
+    dataset = SegmentationDataset(img_dir, label_dir, scale=1)
+    image = Image.open(dataset.path_dict[0][1]).convert('RGB')
     loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, \
         num_workers=num_workers, pin_memory=torch.cuda.is_available())
 
@@ -45,20 +45,23 @@ def demo():
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
             #segm.tensor_to_image(imgs[0])
             prediction = model(imgs)
-            print(prediction[0].size())
-            print(prediction)
             #convert out tensor to image
             ####CHANGE######
-            out_imgs = segm.tensor_to_image((prediction[0].unsqueeze_(0) * 40).squeeze_(0))
+            # out_imgs = segm.tensor_to_image((prediction[0].unsqueeze_(0) * 40).squeeze_(0))
             #out_imgs = formatting.to_three_channel(prediction[0].squeeze())
             #out_imgs = fix_labels.
-            out_imgs
+
+
+            out_imgs = torch.argmax(prediction[0], dim=0)
+            print(out_imgs)
             prediction.detach()
             break
     print(prediction[0].unique())
 
-    plt.imshow(out_imgs)
-    plt.show()  
+    f, axarr = plt.subplots(2,1)
+    axarr[0].imshow(out_imgs)
+    axarr[1].imshow(image)
+    plt.show()
 
 
 if(__name__ == "__main__"):
