@@ -45,3 +45,16 @@ class SegmentationDataset(Dataset):
         img, label = self.transform(img, label)
 
         return img, label
+
+if __name__ == "__main__":
+    dataset_root = 'data/dataset-sample/'
+    img_dir = dataset_root + 'image-chips/'
+    label_dir = dataset_root + 'label-chips/'
+    dataset = SegmentationDataset(img_dir, label_dir, scale=1)
+    
+    img, label = dataset[0]
+
+    f, axarr = plt.subplots(2,1)
+    axarr[0].imshow(transforms.ToPILImage()(img.to(dtype=torch.float32)).convert('RGB'))
+    axarr[1].imshow(transforms.ToPILImage()(label.to(dtype=torch.float32)).convert('RGB'))
+    plt.show()

@@ -21,7 +21,7 @@ class SegmentationTransform:
         img = TF.adjust_brightness(img, brightness_factor=self.brightness())
         if np.random.uniform() < 0.1:
             img = img.filter(ImageFilter.UnsharpMask(radius=self.sharpness()))
-        img, label = RandomAffine()(img, label)
+        #img, label = RandomAffine()(img, label)
         img = transforms.Resize((256,256))(img)
         label = transforms.Resize((256, 256))(label)
         img, label = to_tensor(img, label)

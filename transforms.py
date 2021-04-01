@@ -10,6 +10,7 @@ import segm
 import random
 from single_channel_util import formatting
 from util import fix_labels
+import torch
 
 # format image to tensor
 def spatial_sampling(img_tensor, mode, **kwargs):
@@ -104,11 +105,11 @@ class SegmentationTransform:
 
     def __call__(self, img, label):
         w, h = img.size
-        img = img.filter(ImageFilter.GaussianBlur(radius=self.gaussian()))
-        img = TF.adjust_gamma(img, gamma=self.gamma())
-        img = TF.adjust_brightness(img, brightness_factor=self.brightness())
-        if np.random.uniform() < 0.1:
-            img = img.filter(ImageFilter.UnsharpMask(radius=self.sharpness()))
+        #img = img.filter(ImageFilter.GaussianBlur(radius=self.gaussian()))
+        #img = TF.adjust_gamma(img, gamma=self.gamma())
+        #img = TF.adjust_brightness(img, brightness_factor=self.brightness())
+        #if np.random.uniform() < 0.1:
+            #img = img.filter(ImageFilter.UnsharpMask(radius=self.sharpness()))
         #img, label = RandomAffine()(img, label)
         img = pool(img, mode='adaptive_avg', output_size=(int(self.scale * w), int(self.scale * h)))
         label = label_sampling(label, mode=self.mode, size=(int(self.scale * w), int(self.scale * h)))
@@ -118,3 +119,18 @@ class SegmentationTransform:
         
         
         return img, label
+
+if __name__ == "__main__":
+    label = Image.open('data/dataset-sample/label-chips/1d4fbe33f3_F1BE1D4184INSPIRE-000020.png').convert('RGB')
+    img = Image.open('data/dataset-sample/label-chips/1d4fbe33f3_F1BE1D4184INSPIRE-000020.png').convert('RGB')
+    #img, label = transforms.ToTensor()(img, label)
+    label = torch.as_tensor(np.array(label), dtype=torch.int64)
+    img = transforms.ToTensor()(img)
+
+    print(img, label)
+    # import matplotlib.pyplot as plt
+    # plt.imshow(label)
+    # plt.show()
+
+    # plt.imshow(img)
+    # plt.show()
