@@ -15,7 +15,7 @@ import os
 from loss_fns import DiceLoss
 from nestedUNet import NestedUNet
 
-dataset_root = 'data/dataset-medium/'
+dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
 
@@ -38,12 +38,13 @@ milestones = [2,4,6]
 gamma = .1
 
 #DATALOADER
-batch_size = 9
+batch_size = 2
 num_workers = 0
-
-out_channels = 6
+out_channels = 1
 
 save = True
+
+weight = torch.FloatTensor([.2, .05, .2, .05, .4, .1])
 
 def main():
     print("Using CUDA:      {}".format(gpu_cuda))
@@ -56,6 +57,7 @@ def main():
     # lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
     
     loss_fn = torch.nn.CrossEntropyLoss()
+    loss_fn = DiceLoss()
 
 
 
@@ -122,11 +124,9 @@ def train(model, optimizer, loader, loss_fn, device):
             loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long))
 
             running_loss += loss.item()
-
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-
             logits.detach()
 
             print("Batch: {}/{} | Loss: {} | LR: {}".format(batch_idx + 1, n_batches, loss, get_lr(optimizer)))
