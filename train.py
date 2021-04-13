@@ -15,6 +15,8 @@ import os
 from loss_fns import DiceLoss
 from nestedUNet import NestedUNet
 
+from jaccard import Jaccard
+
 dataset_root = 'data/dataset-sample/'
 img_dir = dataset_root + 'image-chips/'
 label_dir = dataset_root + 'label-chips/'
@@ -56,8 +58,10 @@ def main():
     lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=1, T_mult=1, eta_min=0.0001, last_epoch=-1)
     # lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
     
-    loss_fn = torch.nn.CrossEntropyLoss()
+    #loss_fn = torch.nn.CrossEntropyLoss()
     loss_fn = DiceLoss()
+
+    iou = Jaccard()
 
 
 
@@ -91,7 +95,7 @@ def main():
 
         print('------- EPOCH [{} / {}] -------'.format(epoch + 1, epochs))
 
-        train_loss = train(model, optimizer, train_loader, loss_fn, device)
+        train_loss = train(model, optimizer, train_loader, loss_fn, device, iou)
 
         print("Average Loss = {}".format(train_loss))
 
@@ -108,7 +112,7 @@ def main():
 
 
 
-def train(model, optimizer, loader, loss_fn, device):
+def train(model, optimizer, loader, loss_fn, device, iou):
     model.train()
 
     n_batches = len(loader)
@@ -134,7 +138,7 @@ def train(model, optimizer, loader, loss_fn, device):
     return running_loss / (n_batches)
 
 
-def test(model, loader, loss_fn, device):
+def test(model, loader, loss_fn, device, iou):
     model.eval()
     n_batches = len(loader)
     running_loss = 0.

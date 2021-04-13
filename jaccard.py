@@ -10,8 +10,8 @@ class Jaccard(nn.Module):
         super(Jaccard, self).__init__()
 
     def forward(self, img, label):
-        label = label.cpu().numpy().reshape(-1)
-        img = img.cpu().numpy().reshape(-1)
+        label = label.cpu().detach().numpy().reshape(-1)
+        img = img.cpu().detach().numpy().reshape(-1)
         return jsc(img,label)
 
 
@@ -22,7 +22,7 @@ def iou(pred, target, n_classes = 12):
   target = target.view(-1)
 
   # Ignore IoU for background class ("0")
-  for cls in xrange(1, n_classes):  # This goes from 1:n_classes-1 -> class "0" is ignored
+  for cls in range(1, n_classes):  # This goes from 1:n_classes-1 -> class "0" is ignored
     pred_inds = pred == cls
     target_inds = target == cls
     intersection = (pred_inds[target_inds]).long().sum().data.cpu()[0]  # Cast to long to prevent overflows
