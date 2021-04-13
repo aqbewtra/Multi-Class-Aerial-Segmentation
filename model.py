@@ -7,7 +7,6 @@ class UNetBlock(nn.Module):
     def __init__(self, in_channels, out_channels):
         super(UNetBlock, self).__init__()
         #conv1, bn, relu ---> block 1
-        #UNPADDED????
         self.conv1 = nn.Conv2d(
             in_channels=in_channels,
             out_channels=out_channels,
@@ -18,7 +17,6 @@ class UNetBlock(nn.Module):
         self.relu1 = nn.ReLU(inplace=True)
 
         #conv2, bn, relu ---> block 2
-        
         self.conv2 = nn.Conv2d(
             in_channels=out_channels,
             out_channels=out_channels,
@@ -44,106 +42,43 @@ class UNet(nn.Module):
         super(UNet, self).__init__()
         
         #block - double features, maxpool2d
-        self.down1 = UNetBlock(
-            in_channels=in_channels,
-            out_channels=features,
-        )
-        self.maxPool1 = nn.MaxPool2d(
-            kernel_size=2,
-            stride=2
-        )
+        self.down1 = UNetBlock(in_channels=in_channels, out_channels=features)
+        self.maxPool1 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         #block - double features, maxpool2d
-        self.down2 = UNetBlock(
-            in_channels=features,
-            out_channels=features * 2
-        )
-        self.maxPool2 = nn.MaxPool2d(
-            kernel_size=2,
-            stride=2
-        )
+        self.down2 = UNetBlock(in_channels=features, out_channels=features * 2)
+        self.maxPool2 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         #block - double features, maxpool2d
-        self.down3 = UNetBlock(
-            in_channels=features * 2,
-            out_channels=features * 4
-        )
-        self.maxPool3 = nn.MaxPool2d(
-            kernel_size=2,
-            stride=2
-        )
+        self.down3 = UNetBlock(in_channels=features * 2, out_channels=features * 4)
+        self.maxPool3 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         #block - double features, maxpool2d
-        self.down4 = UNetBlock(
-            in_channels=features * 4,
-            out_channels=features * 8
-        )
-        self.maxPool4 = nn.MaxPool2d(
-            kernel_size=2,
-            stride=2
-        )
+        self.down4 = UNetBlock(in_channels=features * 4, out_channels=features * 8)
+        self.maxPool4 = nn.MaxPool2d(kernel_size=2, stride=2)
 
         #bottleneck - double features without maxpool, before up conv
         # Base of the U structure
-        self.bottleneck = UNetBlock(
-            in_channels=features * 8,
-            out_channels=features * 16
-        )
+        self.bottleneck = UNetBlock(in_channels=features * 8, out_channels=features * 16)
 
         #block - half features, up-conv 2x2
-        self.upConv4 = nn.ConvTranspose2d(
-            in_channels=features * 16,
-            out_channels=features * 8,
-            kernel_size=2,
-            stride=2
-        )
-        self.up4 = UNetBlock(
-            in_channels=features * 16,
-            out_channels=features * 8
-        )
+        self.upConv4 = nn.ConvTranspose2d(in_channels=features * 16, out_channels=features * 8, kernel_size=2, stride=2)
+        self.up4 = UNetBlock(in_channels=features * 16, out_channels=features * 8)
 
         #block - half features, up-conv 2x2
-        self.upConv3 = nn.ConvTranspose2d(
-            in_channels=features * 8,
-            out_channels=features * 4,
-            kernel_size=2,
-            stride=2
-        )
-        self.up3 = UNetBlock(
-            in_channels=features * 8,
-            out_channels=features * 4
-        )
+        self.upConv3 = nn.ConvTranspose2d(in_channels=features * 8, out_channels=features * 4, kernel_size=2, stride=2)
+        self.up3 = UNetBlock(in_channels=features * 8, out_channels=features * 4)
 
         #block - half features, up-conv 2x2
-        self.upConv2 = nn.ConvTranspose2d(
-            in_channels=features * 4,
-            out_channels=features * 2,
-            kernel_size=2,
-            stride=2
-        )
-        self.up2 = UNetBlock(
-            in_channels=features * 4,
-            out_channels=features * 2 
-        )
+        self.upConv2 = nn.ConvTranspose2d(in_channels=features * 4, out_channels=features * 2, kernel_size=2, stride=2)
+        self.up2 = UNetBlock(in_channels=features * 4, out_channels=features * 2)
 
         #block - half features, up-conv 2x2
-        self.upConv1 = nn.ConvTranspose2d(
-            in_channels=features * 2,
-            out_channels=features,
-            kernel_size=2,
-            stride=2
-        )
-        self.up1 = UNetBlock(
-            in_channels=features * 2,
-            out_channels=features
-        )
+        self.upConv1 = nn.ConvTranspose2d(in_channels=features * 2, out_channels=features, kernel_size=2, stride=2)
+        self.up1 = UNetBlock(in_channels=features * 2, out_channels=features)
 
         #conv 1x1 to output segmentation map
-        self.outMap = nn.Conv2d(
-            in_channels=features,
-            out_channels=out_channels,
-            kernel_size=3
-        )
+        self.outMap = nn.Conv2d(in_channels=features, out_channels=out_channels, kernel_size=3)
 
     def forward(self, x):
         #PAD ENCODED BLOCKS BEFORE CONCATTENATING TENSORS
@@ -183,16 +118,10 @@ class UNet(nn.Module):
         decode = self.up1(decode)
         seg_map = self.outMap(decode)
         
-        #return torch.sigmoid(transforms.Resize((300,300))(seg_map))
-        
-        out = torch.nn.Softmax(dim=1)(transforms.Resize((300,300))(seg_map))   
-        #print(out.size())
-        return out
+        return torch.nn.Softmax(dim=1)(transforms.Resize((300,300))(seg_map))
 
 def pad_to_match(small, big):
     diffX = big.size()[2] - small.size()[2]
     diffY = big.size()[3] - small.size()[3]
 
-    small = F.pad(small, [diffX // 2, diffX - (diffX // 2), diffY // 2, diffY - (diffY // 2)])
-
-    return small
+    return F.pad(small, [diffX // 2, diffX - (diffX // 2), diffY // 2, diffY - (diffY // 2)])
