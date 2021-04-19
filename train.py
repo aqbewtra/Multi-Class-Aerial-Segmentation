@@ -42,7 +42,7 @@ gamma = .1
 #DATALOADER
 batch_size = 2
 num_workers = 0
-out_channels = 1
+out_channels = 6
 
 save = True
 
@@ -58,8 +58,8 @@ def main():
     lr_scheduler = lambda o: optim.lr_scheduler.CosineAnnealingWarmRestarts(o, T_0=1, T_mult=1, eta_min=0.0001, last_epoch=-1)
     # lr_scheduler = lambda o: optim.lr_scheduler.MultiStepLR(o, milestones=milestones, gamma=gamma)
     
-    #loss_fn = torch.nn.CrossEntropyLoss()
-    loss_fn = DiceLoss()
+    loss_fn = torch.nn.CrossEntropyLoss()
+    #loss_fn = DiceLoss()
 
     iou = Jaccard()
 
@@ -125,15 +125,17 @@ def train(model, optimizer, loader, loss_fn, device, iou):
             else:
                 logits = model(imgs)
 
-            loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long))
+            loss = loss_fn.forward(logits.squeeze(0), labels.to(dtype=torch.long)//40)
 
             running_loss += loss.item()
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             logits.detach()
+            
+            print(torch.argmax(logits, dim=1).shape, labels.shape)
 
-            print("Batch: {}/{} | Loss: {} | LR: {}".format(batch_idx + 1, n_batches, loss, get_lr(optimizer)))
+            print("Batch: {}/{} | Loss: {} | IoU: {} | LR: {}".format(batch_idx + 1, n_batches, loss, iou.forward(torch.argmax(logits, dim=1), labels), get_lr(optimizer)))
 
     return running_loss / (n_batches)
 
