@@ -19,8 +19,9 @@ import matplotlib.pyplot as plt
 
 model_path = 'model-7.pth'
 
-img_dir = '../data/airsim-sample/'
-label_dir = '../data/airsim-sample/'
+img_dir = '../data/images-selected/'
+
+label_dir = '../data/images-selected/'
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -34,6 +35,7 @@ class AirSimDataset(Dataset):
         # get image and label paths
         self.image_paths = glob(os.path.join(img_dir, '*.png'))
         self.label_paths = glob(os.path.join(label_dir, '*.png'))
+        print(self.image_paths)
 
         # create path dict
         self.path_dict = dict()
@@ -71,19 +73,16 @@ def demo():
     loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, \
         num_workers=num_workers, pin_memory=torch.cuda.is_available())
     
-    #fig, axarr = plt.subplots(3,1)
-    #run an image(s) through
     with torch.set_grad_enabled(False):
         for batch_idx, (imgs, labels) in enumerate(loader):
             imgs, labels = map(lambda x: x.to(device, dtype=torch.float32), (imgs, labels))
-            #segm.tensor_to_image(imgs[0])
             prediction = model(imgs)
-
 
             out_imgs = torch.argmax(prediction[index], dim=0)
             print(out_imgs)
             prediction.detach()
-            break
+            if batch_idx == 1:
+                break
     print(prediction[index].unique())
 
     f, axarr = plt.subplots(2,1)

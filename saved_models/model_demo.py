@@ -13,7 +13,7 @@ import segm
 from single_channel_util import formatting
 from train import batch_size, num_workers
 from dataset import SegmentationDataset
-
+from util.pixel_accuracy import AccByClass, PixAcc
 import matplotlib.pyplot as plt
 from util import fix_labels
 
@@ -36,6 +36,7 @@ def demo():
     model.eval()
     dataset = SegmentationDataset(img_dir, label_dir, scale=1)
     label = Image.open(dataset.path_dict[0][1]).convert('RGB')
+    image = Image.open(dataset.path_dict[0][0]).convert('RGB')
     loader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=False, \
         num_workers=num_workers, pin_memory=torch.cuda.is_available())
 
@@ -51,12 +52,16 @@ def demo():
     print(prediction[0].unique())
     jaccard = Jaccard()
     
-    print("JACCARD:   ", jaccard(out_imgs, jaccard.to_tensor(label)/40))
-
+    print("JACCARD:           ", jaccard(out_imgs, jaccard.to_tensor(label)/40))
+    print("PIXEL ACCURACY:    ", PixAcc()(out_imgs, jaccard.to_tensor(label)/40), "\n")
+    building, clutter, vegetation, water, ground, car = AccByClass()(out_imgs, jaccard.to_tensor(label)/40)
+    print("0 BUILDING: {}\n1 CLUTTER: {}\n2 VEGETATION: {}\n3 WATER: {}\n4 GROUND: {}\n5 CAR: {}".format(building, clutter, vegetation, water, ground, car))
+    print("\nJACCARD ignoring water and ground:", (building + clutter + vegetation + car) / 4)
     
-    f, axarr = plt.subplots(2,1)
+    f, axarr = plt.subplots(1,3)
     axarr[0].imshow(out_imgs)
     axarr[1].imshow(label)
+    axarr[2].imshow(image)
     plt.show()
 
 
