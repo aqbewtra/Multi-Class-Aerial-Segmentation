@@ -1,6 +1,6 @@
 # Multi-Class-Aerial-Segmentation
 
-This model is an implementation of UNet for semantic segmentation in the PyTorch framework. The implementation is aimed to be modular, in that it can be adapted for use with other datasetss, models, implementations, etc.
+This model is an implementation of UNet for semantic segmentation in the PyTorch framework. The implementation is aimed to be modular, in that it can be adapted for use with other datasets, models, implementations, etc.
 
 The goal of this model is to identify the pixel boundaries of geographic features. In development, I hope to:
 * Develop a resilient segmentation model that can adapt to real world implementation.
