@@ -118,7 +118,7 @@ class UNet(nn.Module):
         decode = self.up1(decode)
         seg_map = self.outMap(decode)
         
-        return torch.nn.Softmax(dim=1)(transforms.Resize((300,300))(seg_map))
+        return transforms.Resize((300,300))(seg_map)
 
 def pad_to_match(small, big):
     diffX = big.size()[2] - small.size()[2]
