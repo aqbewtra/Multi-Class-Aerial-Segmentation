@@ -30,7 +30,7 @@ device = torch.device('cuda' if gpu_cuda else 'cpu')
 
 
 #OPTIMIZER
-lr = .001
+lr = .03
 momentum = .9
 nesterov = True
 weight_decay = 5e-4
@@ -40,7 +40,7 @@ milestones = [2,4,6]
 gamma = .1
 
 #DATALOADER
-batch_size = 2
+batch_size = 16
 num_workers = 0
 out_channels = 6
 
@@ -99,7 +99,7 @@ def main():
 
         print("Average Loss = {}".format(train_loss))
 
-        test_loss = test(model, test_loader, loss_fn, device)
+        test_loss = test(model, test_loader, loss_fn, device, iou)
         print("Test Loss = {}".format(test_loss))
         lr_scheduler.step()
 
@@ -133,9 +133,9 @@ def train(model, optimizer, loader, loss_fn, device, iou):
             optimizer.step()
             logits.detach()
             
-            print(torch.argmax(logits, dim=1).shape, labels.shape)
-
-            print("Batch: {}/{} | Loss: {} | IoU: {} | LR: {}".format(batch_idx + 1, n_batches, loss, iou.forward(torch.argmax(logits, dim=1), labels), get_lr(optimizer)))
+            # print(torch.argmax(logits, dim=1).shape, labels.shape)
+            
+            print("Batch: {}/{} | Loss: {} | IoU: {} | LR: {}".format(batch_idx + 1, n_batches, loss, iou.forward(torch.argmax(logits, dim=1)[0], labels[0]), get_lr(optimizer)))
 
     return running_loss / (n_batches)
 
