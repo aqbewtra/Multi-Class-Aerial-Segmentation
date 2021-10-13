@@ -10,4 +10,5 @@ The goal of this model is to identify the pixel boundaries of geographic feature
 
 ## Resources
 * UNet - https://arxiv.org/abs/1505.04597
+* UNet++ - https://arxiv.org/pdf/1807.10165.pdf
 * Dataset - https://github.com/dronedeploy/dd-ml-segmentation-benchmark
